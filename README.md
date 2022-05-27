@@ -26,7 +26,7 @@ git config --global credential.helper 'cache --timeout=3600'
 git config --global credential.helper store
 ```
 
-保存先は指定できるが無指定だと--~/.git-credentials--に保存される。
+保存先は指定できるが無指定だと`~/.git-credentials`に保存される。
 
 ```
 git config --global credential.helper 'store --file ~/.gitr_credentials'
