@@ -68,4 +68,131 @@ git-credential-manager-core をインストール
 git config --global credential.helper manager
 ```
 
+# Gitコマンドについて
+## 基本操作のコマンド
+- 環境設定
+```
+# ユーザ名設定
+$ git config --global user.name "yuji.suda"
+```
 
+- リポジトリ作成
+```
+# カレントディレクトリをGitリポジトリとして初期化する。
+$ git init
+
+# リモートリポジトリをローカルにクローン（複製）する。
+$ git clone https://github.com/suda-y/gettest.git
+```
+
+- ファイル管理
+```
+# ファイルをインデックスに登録する。（バージョン管理対象になる）
+$ git add <pathspec>
+
+# ファイル名変更、移動
+$ git mv <source> <destination>
+
+# ファイルをバージョン管理から除外する
+$ git rm <pathspec>
+```
+
+- ステータスと差分の確認
+```
+# 現時点作業ツリー内の状態を確認する。
+$ git status
+
+# コミットや作業ツリーとの差分を表示する。
+$ git diff
+
+# コミットの差分、ファイルの内容を表示する。
+$ git show <commit>
+```
+- コミット
+```
+# インデックスに変更内容を登録する。
+$ git add <file>
+
+# インデックスの内容をローカルリポジトリにコミットする。
+$ git commit
+```
+- 取り消し
+```
+# ファイルの変更やコミットをリセットする。（※git addの取り消しも使える）
+$ git reset [--mixed | --hard | --soft] [<commit>][<file>]
+
+# コミットの内容を取り消す。
+$ git revert [--no-edit] [-n] <commit>...
+```
+
+## 共有リポジトリ（リモート）でのチーム作業のコマンド
+- 変更を公開する
+```
+# ローカルの変更を共有リポジトリに反映する。
+$ git push
+```
+- 共有リポジトリの変更を取り込む
+```
+# 共有リポジトリの変更を取得して、作業ツリーに取り組む。
+$ git pull
+
+# 共有リポジトリの変更を取得する。（取り込みはしない。変更を確認してから手動で取り込むことが多い。）
+$ git fetch
+```
+- 変更をマージする
+```
+# 他のブランチの変更をチェックアウトしているブランチにマージする。
+$ git merge <branch_name>
+
+# 競合がある場合、競合を手動で解決して、再度コミット
+$ git add <conflict_file>
+$ git commit
+```
+- 変更をリベースする
+```
+# 他のブランチの変更をチェックアウトしているブランチにマージする。
+$ git rebase <branch_name>
+
+# 競合がある場合、競合を手動で解決して続行
+$ git rebase --continue
+```
+- 特定のコミットをブランチに取り込む
+```
+# 他のブランチの変更をチェックアウトしているブランチにマージする。
+$ git cherry-pick <commit_id>...
+```
+
+## その他
+- ブランチ作成
+```
+$ git checkout -b <new_branch_name>
+```
+- ブランチ・タグの切り替え
+```
+$ git checkout <branch_name>
+```
+- リビジョンにタグ付け
+```
+$ git tag v1.0
+```
+- 履歴
+```
+$ git log
+
+# 前の5件概要のみ表示する。
+$ git log -5 --oneline
+```
+- 一時保存
+```
+# 現在編集中のファイルを一時保管
+$ git stash
+
+# 一時保管した利すとを確認する。
+$ git stash list
+
+# 一時保管した内容を確認する。
+$ git stassh show <stash_id> [--name-only]
+
+# 一時保管した内容を取り出す。
+$ git stash pop
+```
