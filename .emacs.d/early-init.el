@@ -1,5 +1,5 @@
-;;; init.el -- My init.el -*- coding: utf-8; lexical-binding: t -*-
-;; Author: grugrut <grugruglut+github@gmail.com>
+;;; early-init.el --            -*- coding: utf-8; lexical-binding: t -*-
+;; Author: suda <suda-y@yamashita-denki.co.jp>
 ;; URL:
 ;; Version: 1.00
 
@@ -18,21 +18,25 @@
 
 ;;; Comentary:
 
-;; My init.el
-
 ;;; Code:
 
-;; init処理中に問題があれば気付けるように
+;; init処理中に問題があれば気を付けるように
 (setq debug-on-error t)
 (setq init-file-debug t)
 
-;; GUI の見た目設定
-; (tool-bar-mode 0)			; ツールバーを表示しない
+;; splash screen を無効にする
+(setq inhibit-splash-screen t)
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; ツールバーを表示しない
+(tool-bar-mode 0)
+;; スクロールバーは保留
+; (set-scroll-bar-mode nil)
 
 ;; native-compのワーニング抑制
-(custom-set-variables '(warning-suppress-types '((comp))))
-
+;; (custom-set-variables '(warning-suppress-types '((comp))))
 ;; カスタムファイル
 (custom-set-variables '(custom-file (expand-file-name "custom.el" user-emacs-directory)))
 
+(provide 'early-init)
 ;; early-init.el ends here
