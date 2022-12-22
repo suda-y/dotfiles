@@ -1,32 +1,81 @@
-#!/bin/bash
+#!/bin/sh
 #								-*- coding: utf-8 -*-
 
-set -Ceuxo pipefail
+# 実行場所のディレクトリを取得
+CURDIR=$(cd $(dirname $0); pwd)
+DOTDIR=${HOME}/dotfiles
+DOTTAR="https://github.com/suda-y/dotfiles/archive/refs/heads/main"
+RMTURL="https://github.com/suda-y/dotfiles.git"
 
-download() {
-    if [ -d "${dotfiles_path}" ]; then
-	echo "ngmy/dotfiles already exists in '${dot_files_path}'"
-	local lyn
-	read -p 'Do you  want to re-download ngmy/dotfiles and continue the installation ? (y/N)' yn
-	if [ "${yn}" != "y" ]; then
-	    echo 'The installaation was canceled.'
+has() {
+    type "$1" > /dev/null 2>&1
+}
+
+case "$(uname)" in
+    "Linux")	echo "Linux OS" ;;
+    "*BSD")	echo "BSD OS"   ;;
+    "Darwin")	echo "mac OS"	;;
+    *)		echo "Other (may be Windows) OS";;
+esac
+
+if [ ! -d "${DOTDIR}" ]; then
+    echo "Download dotfiles..."
+    mkdir ${DOTDIR}
+
+    if has "git"; then
+	git clone --recursive "${RMTURL" "${DOTDIR}"
+    else
+	if has "curl"; then
+	    echo curl -fsSLo ${HOME}/dotfiles.tar.gz ${DOTTAR}
+	elif has "wget"; then
+	    echo wget --no-check-cerificate ${DOTTAR} -O ${HOME}/dotfiles.tar.gz
+	else
+	    echo " fails (wget or curl is not install"
 	    exit 1
 	fi
-	echo "Downloading ngmy/dotfiles to '${dotfiles_path}'..."
-	# git -C "${dotfiles_path}" pull origin master
-	# git -C "{dotfiles_path}" submodule update
-    else
-	echo "Downloading ngmy/dotfiles to '${dotfiles_path}'..."
-	# git clone https://github.com/suda/dotfiles.git "${dotfiles_path}"
-	# git -C "${dotfiles_path}" pull origin master
-	# git -C "{dotfiles_path}" submodule update
+	tar -zxf ${HOME}/dotfiles.tar.gz --strip-components 1 -C ${DOTDIR}
+	rm -f ${HOME}/dotfiles.tar.gz
     fi
-}
+    echo $(tpu setaf 2)Download dotfiles complete!. $(tput sgr0)
+fi
 
-main() {
-    local -r dotfiles_path="$(realpath "${1:-"${HOME}/dotfiles"}")"
 
-    download
-}
+if ! has "git" ; then
+    case "$(uname)" in
+	"Linux")
+	    if has "apt" ; then
+		echo sudo apt install git
+	    else
+		echo "Git is not install"
+		exit 1
+	    fi
+	    ;;
+	"*BSD")
+	    echo sudo pkg install git
+	    ;;
+	*)
+	    if has "pacman" ; then
+		sudo pacman -S git
+		els
+		echo "Git is not install"
+		exit 1
+	    fi
+	    ;;
+    esac
+else
+    echo "Git is installed"
+fi
 
-main "$@"
+
+
+cd $CURDIR
+
+echo "start setup..."
+for f in .??*; do
+    [ "$f" == ".git" ] && continue
+    [ "$f" == ".gitconfig.local.template" ] && continue
+    [ "$f" == ".require_oh-my-zsh" ] && continue
+    [ "$f" == ".gitmodules" ] && continue
+    # ln -snfv ~/dotfile
+
+done

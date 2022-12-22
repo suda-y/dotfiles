@@ -1,0 +1,466 @@
+* はじめに
+
+ここでは自分のEmacsの設定について纏めています。
+作成するにおいては以下のサイトを参照しています。
+- [[https://emacs-jp.github.io/tips/emacs-in-2020][2020年代からのEmacs入門]]
+- [[https://uwabami.github.io/cc-env/Emacs.html][Emacsの設定]]
+- [[https://www.grugrut.net/posts/my-emacs-init-el/][My Emacs Config]]
+- [[https://qiita.com/conao3/items/347d7e472afd0c58fbd7][Emacs入門から始めるleaf.el入門]]
+マニュアル
+- [[https://takaxp.github.io/org-ja.html][Org Mode マニュアル]]
+
+** 設定は[[http://orgmode.org/][Org mode]]([[https://orgmode.org/worg/org-contrib/babel/intro.html][Org Babel]])で書く。
+
+[[https://uwabami.github.io/cc-env/Emacs.html][Emacsの設定]]を参考に、本フィアル[[file:~/.emacs.d/INIT.org][INIT.org]]から、Makefile内の以下のスクリプトで
+=eary-init.el= 及び =init.el= を生成し、byte-compile します。
+#+begin_src makefile-gmake :tangle no
+  # -*- mode: makefile -*-
+  EMACS	?= emacs
+
+  EL	= early-init.el
+  ELC	= $(EL:%.el=%.elc)
+
+  all:	$(ELC) init.elc
+
+  $(EL):	init.el
+  init.el:	README.org
+	  $(EMACS) -Q -q --batch --eval \
+	    "(progn \
+	      (require 'ob-tangle) \
+	      (org-babel-tangle-file \"$<\" \"$@\" \"emacs-lisp\"))"
+	  $(EMACS) -q -l init.el --batch --eval '(kill-emacs)'
+  %.elc:	%.el
+	  $(EMACS) -q -l init.el --batch -f batch-byte-compile $<
+
+  clean:
+	  rm -rf auto-save-list custom.el *.elc *~
+#+end_src
+** [[https://github.com/conao3/leaf.el][leaf.el]]でEmacsのパッケージの導入及び設定を行う。
+
+* early-init.el
+Emacs >= 27 からの機能
+** ヘッダー
+*** タイトル
+#+begin_src emacs-lisp :tangle early-init.el
+  ;;; early-init.el --            -*- coding: utf-8; lexical-binding: t -*-
+  ;; Author: suda <suda-y@yamashita-denki.co.jp>
+  ;; URL:
+  ;; Version: 1.00
+  
+#+end_src
+
+*** LICENSE
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; This program is free software: you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation, either version 3 of the License, or
+  ;; (at your option) any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; You should have received a copy of the GNU General Public License
+  ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+#+end_src
+
+** 本体
+*** コメント
+#+begin_src emacs-lisp :tangle early-init.el
+  ;;; Comentary:
+
+  ;;; Code:
+
+#+end_src
+
+*** init 処理中に問題があれば気付けるように
+#+begin_src emacs-lisp :tangle early-init.el
+  (setq debug-on-error t)
+  (setq init-file-debug t)
+#+end_src
+
+*** Magic File Name を一時的に無効化
+これだけで 0.2秒縮まったそうだ。
+#+begin_src emacs-lisp :tangle early-init.el
+  (defconst my:saved-file-name-handler-alist file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+  (add-hook 'emacs-startup-hook
+	    (lambda ()
+	      (setq file-name-handler-alist my:saved-file-name-handler-alist)))
+#+end_src
+*** Garbage Collection 関連
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; GC 関連
+  (setq gc-cons-threshold most-positive-fixnum)
+#+end_src
+
+*** GUI の見た目設定
+ツールバーは使わないので表示しない。メニューバーは残している。
+#+begin_src emacs-lisp :tangle early-init.el
+  (tool-bar-mode 0)			;; ツールバーを表示しない。
+  ; (set-scroll-bar-mode nil)		;; スクロールバーは保留
+#+end_src
+**** 日本語フォントをHan
+#+begin_src emacs-lisp :tangle early-init.el
+  (when (eq system-type 'windows-nt)
+    (setq default-frame-alist
+	  (append (list
+		   '(font . "HackGen Console NFJ-11"))
+		  default-frame-alist))
+    ;; (set-face-attribute 'default nil :family "HackGen Console NFJ" :height 110)
+    ;; (set-fontset-font nil '(#x80 . #x10ffff) (font-spec :family "HackGen Console NFJ"))
+    )
+#+end_src
+
+*** ワーニング抑制、他
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; native-compのワーニング抑制
+  ;; (custom-set-variables '(warning-suppress-types '((comp))))
+  ;; カスタムファイル
+  (custom-set-variables
+   '(custom-file (expand-file-name "custom.el" user-emacs-directory)))
+#+end_src
+** フッター
+#+begin_src emacs-lisp :tangle early-init.el
+
+  (provide 'early-init)
+  ;; early-init.el ends here
+#+end_src
+
+* init.el
+** ヘッダー
+*** タイトル
+#+begin_src emacs-lisp :tangle init.el
+  ;;; init.el --                    -*- coding: utf-8; lexical-binding: t -*-
+  ;; Author: suda <suda-y@yamashita-denki.co.jp>
+  ;; URL: https://github.com/suda-y/dotfiles/
+  ;; Version: 1.00
+  
+#+end_src
+
+*** LICENSE
+#+begin_src emacs-lisp :tangle init.el
+  ;; This program is free software: you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation, either version 3 of the License, or
+  ;; (at your option) any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; You should have received a copy of the GNU General Public License
+  ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+#+end_src
+
+** 前処理
+*** コメント
+#+begin_src emacs-lisp :tangle init.el
+  ;;; Comentary:
+
+  ;;; Code:
+
+#+end_src
+
+*** ディレクトリ構成の修正
+ 分割した設定ファイル群やpackageでinstallしたパッケージの置き場所は
+=user-emacs-direcotry= 以下にまとめています。
+ ディレクトリ構成は以下のようにしました。
+#+begin_example
+~/.emacs.d/
+ |-- Makefile     ← byte-compile用のrule
+ |-- INIT.org     ← 本ファイル。'org-babel-tangle'でearly-init.el、init.elを生成
+ |-- pkg/
+ |   |-- elpa/    ← package.el で導入したパッケージが置かれる場所
+ |   `-- el-get/  ← el-get で導入したパッケージが置かれる場所
+ `-- share/       ← (基本的に)参照するだけの資源置き場所
+~/.cache/emacs    ← 一時ファイルの置き場所
+#+end_example
+上記ディレクトリ構成を設定ファイルで使用するために、ディレクトリ配置を宣言して
+おきます。
+#+begin_src emacs-lisp :tangle init.el
+  (eval-and-compile
+    (when (or load-file-name byte-compile-current-file)
+      (setq user-emacs-directory
+	    (expand-file-name
+	     (file-name-directory (or load-file-name byte-compile-current-file))))))
+
+  ;; (when load-file-name
+  ;;   (setq user-emacs-directory
+  ;;         (expand-file-name (file-name-directory load-file-name))))
+  (defconst my:d:share
+    (expand-file-name "share/" user-emacs-directory))
+  (defconst my:d:tmp
+    (expand-file-name ".cache/emacs/" (getenv "HOME")))
+  (unless (file-directory-p my:d:tmp)
+    (make-directory my:d:tmp))
+  (defconst my:d:pkg:elpa
+    (expand-file-name "pkg/elpa" user-emacs-directory))
+  (defconst my:d:pkg:elget
+    (expand-file-name "pkg/el-get" user-emacs-directory))
+#+end_src
+
+その他、良く使うディレクトリもここで設定します。（今はなし）
+*** Package及びleaf関連
+いろいろ書き換え予定
+#+begin_src emacs-lisp :tangle init.el
+    (eval-and-compile
+      (custom-set-variables
+       '(package-archives '(("org"   . "https://orgmode.org/elpa/")
+			    ("melpa" . "https://melpa.org/packages/")
+			    ("gnu"   . "https://elpa.gnu.org/packages/")
+			   ))
+       '(packages-gnupghome-dir (expand-file-name ".gnupg" (getenv "HOME")))
+       '(package-user-dir my:d:pkg:elpa)
+       )
+      (package-initialize)
+      (unless (package-installed-p 'leaf)
+	(package-refresh-contents)
+	(package-install 'leaf))
+
+      (leaf leaf-keywords
+	    :ensure t
+	    :init
+	    ;; optional packages if you want use :bydra, :el-get, :blackout, ...
+	    (leaf hydra :ensure t)
+	    (leaf el-get
+	      :ensure t
+	      :preface
+	      (defconst el-get-dir my:d:pkg:elget) ;; override el-get default
+	      :custom ((el-get-notify-type       . 'message)
+		       (el-get-get-shallow-clone . t)))
+	    (leaf blackout :ensure t)
+
+	    :config
+	    ;; initialize leaf-keywords
+	    (leaf-keywords-init)))
+#+end_src	  
+*** early-init.el の読み込み
+Emacs26 以前の場合は =eraly-init.el= が使えないので手動で読み込む。
+#+begin_src emacs-lisp :tangle init.el
+  ;; early-init.el の読み込み
+  (leaf early-init
+    :doc ""
+    :emacs< "27.1"
+    :config
+    (load (concat user-emacs-directory "early-init.el"))
+    )
+#+end_src
+
+** 本体
+#+begin_src emacs-lisp :tangle init.el
+  ;; ここにいっぱい設定を書く
+  ;; (setq load-path (cons "~/.emacs.d/" load-path))
+  ;; (require 'w32-symlinks)
+#+end_src
+*** leaf 用便利ツール
+**** leaf-convert、leaf-tree
+- leaf-convert はプレーンなElispやuse-packageからleafへ変換機能を提供します。
+- leaf-tree は leaf.el で書かれた init.el を開き、M-x leaf-tree-mode を実行
+  こでクリック出来るサイドバーを表示します。
+#+begin_src emacs-lisp :tangle init.el
+  ;; leaf 用便利ツール
+  (leaf leaf
+    :config
+    (leaf leaf-convert :ensure t)
+    (leaf leaf-tree
+      :ensure t
+      :custom ((imenu-list-size . 30)
+	       (imenu-list-option . 'left)))
+    )
+#+end_src
+  
+**** macrostep
+leaf に限らず、マクロを１ステップごとに展開することができます。
+#+begin_src emacs-lisp :tangle init.el
+  (leaf macrostep
+    :ensure t
+    :bind (("C-c e" . macrostep-expand)))
+#+end_src
+*** 言語の設定
+最近のEmacsはlocateから文字コードを自動判別するらしい。
+#+begin_src emacs-lisp :tangle init.el
+  ;; 言語設定
+  (leaf general-setting
+    :config
+    (set-language-environment "Japanese")
+    (prefer-coding-system 'utf-8)		; 極力UTF-8とする
+    :setq ((quail-japanese-use-double-n . t))
+    )
+#+end_src
+**** 日本語関連 (cp5022x.el)
+Emacs23から内がUnicodeベースになっています。
+
+しかし文字コードの変換はGNU libcのiconvをベースにしてるため、機種依存文字を
+含む文字コードの変換をうまく行えません。 そこで言語設定前にcp5022x.elをインストール
+することにしています。
+#+begin_src emacs-lisp :tangle init.el
+  (leaf cp5022x
+    :ensure t
+    :require t
+    :config
+    (set-charset-priority 'ascii 'japanese-jisx0208 'latin-jisx0201
+			  'katakana-jisx0201 'iso-8859-1 'unicode)
+    (set-coding-system-priority 'utf-8 'euc-jp 'iso-2022-jp 'cp932)
+    )
+#+end_src
+
+**** 日本語入力設定
+#+begin_src emacs-lisp :tangle init.el
+  (leaf ime
+    :config
+    ;; Windows 日本語設定
+    (leaf windows
+      :when (eq system-type 'windows-nt)
+      :defvar (w32-ime-mode-line-state-indicator-list
+	       w32-ime-composition-window)
+      :defun (w32-ime-wrap-function-to-control-ime
+	      w32-ime-initialize)
+      :config
+      (leaf tr-ime
+	:doc "Enulator of IME path for Windows"
+	:req "emacs-27.1" "w32-ime-0.0.1"
+	:tag "emacs>=27.1"
+	:url "https://github.com/trueroad/tr-emacs-ime-module"
+	:added "2022-12-15"
+	:ensure t
+	:defun tr-ime-advanced-install
+	:config (tr-ime-advanced-install)
+	(cond ((and (boundp 'tr-ime-enabled-features)
+		    (eq tr-ime-enabled-features 'standard))
+	       ;; standard 環境用
+	       (message "tr-ime standrd"))
+	      ((and (boundp 'tr-ime-enabled-features)
+		    (eq tr-ime-enabled-features 'advanced))
+	       ;; advanced 環境用
+	       (message "tr-ime advanced"))
+	      ((or (subrp (symbol-function 'ime-get-mode))
+		   (and (fboundp 'tr-ime-detect-ime-patch-p)
+			(tr-ime-detect-ime-patch-p)))
+	       ;; IMEパッチ環境用
+	       (message "IME patched"))
+	      (t
+	       ;; いずれでもない環境用
+	       (message "others")))
+	)
+      ;; IME のデフォルトをIMEに設定
+      (setq default-input-method "W32-IME")
+      ;; IME のモードライン表示設定
+      (setq-default w32-ime-mode-line-state-indicator "[--]")
+      (setq w32-ime-mode-line-state-indicator-list
+	    '("[--]" "[あ]" "[--]"))
+      ;; IME 初期化
+      (w32-ime-initialize)
+      (w32-ime-wrap-function-to-control-ime 'universal-argument)
+      (w32-ime-wrap-function-to-control-ime 'read-string)
+      (w32-ime-wrap-function-to-control-ime 'read-char)
+      (w32-ime-wrap-function-to-control-ime 'read-from-minibuffer)
+      (w32-ime-wrap-function-to-control-ime 'y-or-n-p)
+      (w32-ime-wrap-function-to-control-ime 'yes-or-no-p)
+      (w32-ime-wrap-function-to-control-ime 'map-y-or-n-p)
+      (w32-ime-wrap-function-to-control-ime 'register-read-with-preview)
+      (set-frame-font "HackGen Console NFJ-11" nil t)
+      (modify-all-frames-parameters '((ime-font . "HackGen Console NFJ-11")))
+      (add-hook 'isearch-mode-hook
+		(lambda nil
+		  (setq w32-ime-composition-window (minibuffer-window))))
+      (add-hook 'isearch-mode-end-hook
+		(lambda nil
+		  (setq w32-ime-composition-window nil)))
+      )
+    ;; Linux 日本語設定
+    (leaf linux
+      :when (eq system-type 'gnu/linux)
+      :config
+      (leaf mozc
+	:doc "minor mode to input Japanese with Mozc"
+	:added "2022-12-15"
+	:ensure t
+	:require mozc
+	:bind (([zenkaku-hankaku C-\\] . toggle-input-method))
+	:custom ((default-input-method . "japanese-mozc")
+		 (mozc-leim-title . "♡かな"))
+	:init
+	(leaf mozc-temp
+	  :ensure t
+	  :bind* ("<henkan>" . mozc-temp-convert))
+	)
+      )
+    )
+
+#+end_src
+*** Emacs 標準添付パッケージの設定
+Emacsには多くの標準添付パッケージがあります。また、C言語で書かれたコア部分に
+ついても、Elispから設定できます。
+**** cus-edit.c
+leafの=:custom=で設定するとinit.elにcustomが勝手に設定を追記します。
+この状況になると、変数の二重管理となってしまうので、customがinit.elに
+記載しないように設定します。
+**** cus-start.c
+Emacs のC言語部分で定義されている変数を=custom=で扱えるようにまとめている
+ファイルです。
+**** autorevert
+Emacs の外でファイルが書き換った時に自動的に読み直すマイナーモード
+**** cc-mode
+Cやそれに似た構文を持つファイルに関する設定です。かなり細かな設定が出来ます。
+**** delsel
+選択している状態で入力したときに、region を削除して挿入するマイナーモード
+**** paren
+対応するカッコを強調するマイナーモード
+**** simple
+kill-ringの数を抑制したり、kill-lineの挙動を変更したりします。
+**** files
+単にdisableするのではなく、バックアップファイルを一箇所に集める。
+**** startup
+startup は起動は静かに。自動保存ファイルに関しては保留。
+#+begin_src emacs-lisp :tangle initl.el
+  ;; startup 起動は静かに
+  (leaf startup
+    :doc "process Emacs shell arguments"
+    :tag "builtin" "internal"
+    :custom '((inhibit-startup-screen . t)
+	      ;; (inhibit-startup-message . t)
+	      (inhibit-startup-echo-area-message . t)
+	      ;; (initial-scratch-message . nil)
+	      )
+    )
+#+end_src
+
+*** ivy
+[[https://github.com/abo-abo/swiper][ivy]]はミニバッファの補完を強化するパッケージです。
+*** flycheck
+[[https://www.flycheck.org/][flycheck]]はリアルタイムにソースにエラーやワーニングを表示するマイナーモードです。
+*** company
+[[http://company-mode.github.io/][company]]は入力補完の為のパッケージです。
+他エディタではインテリセンスと呼ばれているものと同一の機能を提供します。
+*** yasnippet
+yasnippetは、テンプレートの挿入を提供しているパッケージです。
+これはPython以外の言語でも使えます。
+Pythonのテンプレートは[[https://github.com/AndreaCrott/yasnippet-snippets/treemaster/nippets/python-mode][yasnippet-snippetsのpython-mode]]を参照下さい。
+*** キーバインド
+#+begin_src emacs-lisp :tangle init.el
+  ;; キーバインド設定
+  (leaf-keys (("C-h"    . backward-delete-char)
+	      ("C-c ;"  . comment-region)
+	      ("C-c M-;". uncomment-region)
+	      ("<home>" . beginning-of-buffer)
+	      ("M-g"    . goto-line)
+	      ("M-p"    . compile)
+	      ))
+#+end_src
+
+** フッター
+#+begin_src emacs-lisp :tangle init.el
+  (provide 'init)
+
+  ;; Local Variables:
+  ;; indeint-tabs-mode: t
+  ;; End:
+
+  ;; init.el    ends here
+#+end_src
+
