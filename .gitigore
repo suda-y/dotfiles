@@ -1,0 +1,10 @@
+# Log files
+*.log
+
+# Emacs backup files
+*~
+*#
+.#*
+
+# Emacs byte-compile files
+*.elc

@@ -1,0 +1,9 @@
+[user]
+	name = suda-y
+	email = suda-y@yamashita-denki.co.jp
+[core]
+	quotepath = false
+[include]
+	path = ~/.gitconfig_os
+[credential "https://dev.azure.com"]
+	useHttpPath = true
