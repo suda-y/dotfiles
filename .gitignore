@@ -1,0 +1,20 @@
+# Log files
+*.log
+
+# Emacs backup files
+*~
+*#
+.#*
+*.bak
+
+# Emacs byte-compile files
+*.elc
+
+# Emacs Initialize files
+init.el
+early-init.el
+
+# Emacs direcotries
+.emacs.d/auto-save-list
+.emacs.d/eln-cache
+.emacs.d/pkg
