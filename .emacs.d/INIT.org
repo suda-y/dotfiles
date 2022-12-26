@@ -205,6 +205,12 @@ Emacs >= 27 からの機能
 #+end_src
 
 その他、良く使うディレクトリもここで設定します。（今はなし）
+*** load-path の追加
+#+begin_src emacs-lisp :tangle init.el
+  (add-to-list 'load-path
+	       (expand-file-name "elisp" user-emacs-directory))
+#+end_src
+
 *** Package及びleaf関連
 いろいろ書き換え予定
 #+begin_src emacs-lisp :tangle init.el
@@ -383,6 +389,25 @@ Emacs23から内がUnicodeベースになっています。
 	:require mozc
 	:bind (([zenkaku-hankaku C-\\] . toggle-input-method))
 	:custom ((default-input-method . "japanese-mozc")
+		 (mozc-leim-title . "♡かな"))
+	:init
+	(leaf mozc-temp
+	  :ensure t
+	  :bind* ("<henkan>" . mozc-temp-convert))
+	)
+      )
+    ;; BSD 日本語設定
+    (leaf BSD
+      :when (eq system-type 'berkeley-unix)
+      :config
+      (leaf mozc
+	:doc "minor mode to input Japanese with Mozc"
+	:added "2022-12-22"
+	:ensure t
+	:require mozc
+	:bind (([zenkaku-hankaku C-\\] . toggle-input-method))
+	:custom ((default-input-method . "japanese-mozc")
+		 (mozc-helper-program-name . "/usr/local/libexec/mozc_emacs_helper")
 		 (mozc-leim-title . "♡かな"))
 	:init
 	(leaf mozc-temp
