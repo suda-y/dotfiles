@@ -442,7 +442,7 @@ kill-ringの数を抑制したり、kill-lineの挙動を変更したりしま�
 単にdisableするのではなく、バックアップファイルを一箇所に集める。
 **** startup
 startup は起動は静かに。自動保存ファイルに関しては保留。
-#+begin_src emacs-lisp :tangle initl.el
+#+begin_src emacs-lisp :tangle init.el
   ;; startup 起動は静かに
   (leaf startup
     :doc "process Emacs shell arguments"
