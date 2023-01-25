@@ -80,7 +80,11 @@ Emacs >= 27 からの機能
   (setq debug-on-error t)
   (setq init-file-debug t)
 #+end_src
-
+*** 描画高速化
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; 右から左に読む言語に対応させないことで描画高速化
+  (setq-default bidi-disolay-reordering nil)
+#+end_src
 *** Magic File Name を一時的に無効化
 これだけで 0.2秒縮まったそうだ。
 #+begin_src emacs-lisp :tangle early-init.el
@@ -90,10 +94,18 @@ Emacs >= 27 からの機能
 	    (lambda ()
 	      (setq file-name-handler-alist my:saved-file-name-handler-alist)))
 #+end_src
-*** Garbage Collection 関連
+*** Garbage Collection(GC) の設定
+起動時に garbate collection を発生させないようにする。
+
 #+begin_src emacs-lisp :tangle early-init.el
   ;; GC 関連
+  (defconst my:default-gc-cons-threshold gc-cons-threshold)
   (setq gc-cons-threshold most-positive-fixnum)
+  ;; Run GC every 60 secnds if emacs is idle.
+  (run-with-idle-timer 60.0 t #'garbase-collect)
+  (add-hook 'emacs-startup-hook
+	    (lambda ()
+	      (setq gc-cons-threshold my:default-gc-cons-threshold)))
 #+end_src
 
 *** GUI の見た目設定
