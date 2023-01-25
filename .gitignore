@@ -1,6 +1,9 @@
 # Log files
 *.log
 
+# Object files
+*.o
+
 # Emacs backup files
 *~
 *#
@@ -11,11 +14,11 @@
 *.elc
 
 # Emacs direcotries
-.emacs.d/*
-!.emacs/INIT.org
-!.emacs/Makefile
-!.emacs/elisp
+/.emacs.d/*
+!/.emacs/INIT.org
+!/.emacs/Makefile
+!/.emacs/elisp
 
 # w3m
-.w3m/*
-!.w3m/bookmark.html
+/.w3m/*
+!/.w3m/bookmark.html
