@@ -102,7 +102,7 @@ Emacs >= 27 からの機能
   (defconst my:default-gc-cons-threshold gc-cons-threshold)
   (setq gc-cons-threshold most-positive-fixnum)
   ;; Run GC every 60 secnds if emacs is idle.
-  (run-with-idle-timer 60.0 t #'garbase-collect)
+  (run-with-idle-timer 60.0 t #'garbage-collect)
   (add-hook 'emacs-startup-hook
 	    (lambda ()
 	      (setq gc-cons-threshold my:default-gc-cons-threshold)))
