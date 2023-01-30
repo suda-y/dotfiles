@@ -13,7 +13,7 @@ alias   l='ls -CF'
 alias   la='ls -A'
 alias   ll='ls -alF'
 alias	ls='ls --color=auto --show-control-char'
-alias	vi=vim
+#alias	vi=vim
 # for gettext
 if where cygpath.exe > /dev/null && [ -n "$USERPROFILE" ]; then
     # on Windows (MSYS2)
