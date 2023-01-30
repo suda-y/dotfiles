@@ -114,6 +114,29 @@ Emacs >= 27 からの機能
   (tool-bar-mode 0)			;; ツールバーを表示しない。
   ; (set-scroll-bar-mode nil)		;; スクロールバーは保留
 #+end_src
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (defun reset-frame-parameter (frame)
+    (sleep-for 0.1)
+    (set-frame-parameter frame 'height 50))
+  (add-hook 'after-make-frame-functions #'reset-frame-parameter)
+#+end_src
+
+起動時のウィンドウサイズなど
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; 起動時のウィンドウサイズなど
+  (if (boundp 'window-system)
+      (setq default-frame-alist
+	    (append (list
+		     '(width  . 90)	; ウィンドウ幅
+		     '(height . 50)	; ウィンドウ高さ
+		     )
+		    default-fame-alist)
+	    ))
+  (setq initial-frame-alist default-frame-alist)
+#+end_src
+
+
 **** 日本語フォントをHan
 #+begin_src emacs-lisp :tangle early-init.el
   (when (eq system-type 'windows-nt)
@@ -226,36 +249,36 @@ Emacs >= 27 からの機能
 *** Package及びleaf関連
 いろいろ書き換え予定
 #+begin_src emacs-lisp :tangle init.el
-    (eval-and-compile
-      (custom-set-variables
-       '(package-archives '(("org"   . "https://orgmode.org/elpa/")
-			    ("melpa" . "https://melpa.org/packages/")
-			    ("gnu"   . "https://elpa.gnu.org/packages/")
-			   ))
-       '(packages-gnupghome-dir (expand-file-name ".gnupg" (getenv "HOME")))
-       '(package-user-dir my:d:pkg:elpa)
-       )
-      (package-initialize)
-      (unless (package-installed-p 'leaf)
-	(package-refresh-contents)
-	(package-install 'leaf))
+  (eval-and-compile
+    (custom-set-variables
+     '(package-archives '(("org"   . "https://orgmode.org/elpa/")
+			  ("melpa" . "https://melpa.org/packages/")
+			  ("gnu"   . "http://elpa.gnu.org/packages/")
+			 ))
+     ;; '(packages-gnupghome-dir (expand-file-name ".gnupg" (getenv "HOME")))
+     '(package-user-dir my:d:pkg:elpa)
+     )
+    (package-initialize)
+    (unless (package-installed-p 'leaf)
+      (package-refresh-contents)
+      (package-install 'leaf))
 
-      (leaf leaf-keywords
-	    :ensure t
-	    :init
-	    ;; optional packages if you want use :bydra, :el-get, :blackout, ...
-	    (leaf hydra :ensure t)
-	    (leaf el-get
-	      :ensure t
-	      :preface
-	      (defconst el-get-dir my:d:pkg:elget) ;; override el-get default
-	      :custom ((el-get-notify-type       . 'message)
-		       (el-get-get-shallow-clone . t)))
-	    (leaf blackout :ensure t)
+    (leaf leaf-keywords
+      :ensure t
+      :init
+      ;; optional packages if you want use :bydra, :el-get, :blackout, ...
+      (leaf hydra :ensure t)
+      (leaf el-get
+	:ensure t
+	:preface
+	(defconst el-get-dir my:d:pkg:elget) ;; override el-get default
+	:custom ((el-get-notify-type       . 'message)
+		 (el-get-get-shallow-clone . t)))
+      (leaf blackout :ensure t)
 
-	    :config
-	    ;; initialize leaf-keywords
-	    (leaf-keywords-init)))
+      :config
+      ;; initialize leaf-keywords
+      (leaf-keywords-init)))
 #+end_src	  
 *** early-init.el の読み込み
 Emacs26 以前の場合は =eraly-init.el= が使えないので手動で読み込む。
@@ -437,6 +460,7 @@ Emacsには多くの標準添付パッケージがあります。また、C言�
 leafの=:custom=で設定するとinit.elにcustomが勝手に設定を追記します。
 この状況になると、変数の二重管理となってしまうので、customがinit.elに
 記載しないように設定します。
+
 **** cus-start.c
 Emacs のC言語部分で定義されている変数を=custom=で扱えるようにまとめている
 ファイルです。
