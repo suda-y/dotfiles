@@ -131,7 +131,7 @@ Emacs >= 27 からの機能
 		     '(width  . 90)	; ウィンドウ幅
 		     '(height . 50)	; ウィンドウ高さ
 		     )
-		    default-fame-alist)
+		    default-frame-alist)
 	    ))
   (setq initial-frame-alist default-frame-alist)
 #+end_src
