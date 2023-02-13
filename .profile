@@ -29,13 +29,17 @@ if where cygpath.exe > /dev/null && [ -n "$USERPROFILE" ]; then
     fi
     unset scoop_path
     
-    if [[ -d "$HOME/GnuPG/bin" && ! "$PATH" =~ "$HOME/GnuPG/bin:" ]]; then
-	PATH="$HOME/GnuPG/bin:$PATH"
+    if [[ -d "$HOME/BIN/GnuPG/bin" && ! "$PATH" =~ "$HOME/BIN/GnuPG/bin:" ]]; then
+	PATH="$HOME/BIN/GnuPG/bin:$PATH"
     fi
     
     # if [ -d "/c/PROGRA~2/GnuPG/bin/" ]; then
     # 	export PATH="/c/PROGRA~2/GnuPG/bin:${PATH}"
     # fi
+
+    if [[ -d "/d/java/bin"  && ! "$PATH" = "/d/java/bin:" ]]; then
+	PATH="/d/java/bin:${PATH}"
+    fi
 fi
 
 if [[ -d "/opt/bin" && ! "$PATH" =~ "/opt/bin:" ]]; then
