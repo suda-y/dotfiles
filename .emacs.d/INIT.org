@@ -626,6 +626,15 @@ startup は起動は静かに。自動保存ファイルに関しては保留。
     :emacs>= 25.1
     :ensure t
     :leaf-defer nil
+    ;; :hook ((text-mode-hook python-mode-hook emacs-ilsp-mode-hook)
+    ;; 	 ;; (text-mode-hook) 他は各モードの方で設定
+    ;; 	 (emacs-lisp-mode-hook . (lambda ()
+    ;; 				   (set (make-local-variable 'company-backends)
+    ;; 					'(company-semantic company-files company-elisp company-dabbrev-code))))
+    ;; 	 (org-mode-hook . (lambda ()
+    ;; 			    (set (make-local-variable 'company-backends)
+    ;; 				 '(company-ispell company-dabbrev company-yasnippet company-files))))
+    ;; 	 )
     :bind ((company-active-map
 	    ("M-n" . nil)
 	    ("M-p" . nil)
@@ -663,46 +672,6 @@ yasnippetは、テンプレートの挿入を提供しているパッケージ�
 これはPython以外の言語でも使えます。
 Pythonのテンプレートは[[https://github.com/AndreaCrott/yasnippet-snippets/treemaster/nippets/python-mode][yasnippet-snippetsのpython-mode]]を参照下さい。
 #+begin_src emacs-lisp :tangle init.el
-  (leaf yasnippet
-    :doc "Yet another snippet extension for Emacs"
-    :req "cl-lib-0.5"
-    :tag "emulation" "convenience"
-    :url "http://github.com/joaotavora/yasnippet"
-    :added "2023-02-10"
-    :ensure t
-    :blackout yas-minor-mode
-    :custom ((yas-indent-line . 'fixed)
-	     (yas-global-mode . t))
-    :bind ((yas-keymap
-	    ("<tab>" . nil))		; conflict with company
-	   (yas-minor-mode-map
-	    ("C-c y i" . yas-insert-snippet)
-	    ("C-c y n" . yas-new-snippet)
-	    ("C-c y v" . yas-visit-snippet-file)
-	    ("C-c y l" . yas-describe-tables)
-	    ("C-c y g" . yas-reload-all)))
-    :config
-    (leaf yasnippet-snippets:ensure t)
-    (leaf yatemplate
-      :doc "File templates with yasnippet"
-      :req "yasnippet-0.8.1" "emacs-24.3"
-      :tag "convenience" "files" "emacs>=24.3"
-      :url "https://github.com/mineo/yatemplate"
-      :added "2023-02-10"
-      :ensure t
-      :config
-      (defvar company-mode/enable-yas t	"Enable yasnippet for all backends.")
-      (defun company-mode/backend-with-yas (backend)
-	(if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-	    backend
-	  (append (if (consp backend) backend (list backend))
-		  '(with company-yasnippet))))
-      (defun set-yas-as-company-backend ()
-	(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-	)
-      :hook ((company-mode-hook . set-yas-as-company-backend))
-      :after yasnippet)
-    )
 #+end_src
 
 *** Python 関連
