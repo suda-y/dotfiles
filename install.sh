@@ -83,6 +83,65 @@ run_apt() {
   echo "Installing Packages..."
 
   sudo apt update && sudo apt upgrade -y
+
+  if [ -n "$WSL_DISTRO_NAME" ]; then
+      export WSL2=1
+      # 日本語パックを入れて、ロケールを ja_JP にする
+      # これ以降、コマンドラインのエラー表示なども日本語になります。
+      sudo apt install -y language-pack-ja language-pack-gnome-ja
+      sudo update-locale LANG=ja_JP.UTF-8
+      sudo apt install manpages-ja manpages-ja-dev
+      sudo dpkg-reconfigure tzdata
+  fi
+
+  sudo apt remove --autoremove emacs emacs-common
+  sudo add-apt-repository ppa:kelleyk/emacs
+  sudo apt update
+  sudo apt install emacs28 emacs28-el
+  sudo apt install cmigemo
+
+  if [ -n "$WSL2" ]; then
+      sudo apt install -y fcitx-mozc dbus-x11
+      sudo sh -c "dbus-uuidgen > /var/lib/dbus/machine-id"
+      cat <<EOF >> ~/.profile
+# Added by bash script from  https://astherier.com/blog/2021/07/windows11-wsl2-wslg-japa# EXPORT DISPLAY
+if [[ -n \${WSL_INTEROP} ]]; then
+        export WSL2=1
+
+        ipconfig_exec=\$(wslpath "C:\\Windows\\System32\\ipconfig.exe")
+        if which ipconfig.exe > /dev/null ; then
+                ipconfig_exec=\$(which ipconfig.exe)
+        fi
+        wsl2_d_tmp=\$(\$ipconfig_exec | grep -m1 -B "Default Gateway.*: [0-9a-z]" | grep IPv4 | cut -d: -f2 | sed -e "s|\s||g" -e "s|\r||g")
+        if [ -n \$wsl2_d_tmp ]; then
+                export DISPLAY="\$wsl2_d_tmp:0"
+                echo DISPLAY=\$DISPLAY
+        else
+                export DISPLAY=\$(cat /etc/resolv.conf | grep nameerver | awk "{print \$2}"):0
+        fi
+	export GTK_IM_MODLE=fcitx
+	export QT_IM_MODLE=fcitx
+	export XMODIFIERS='@im=fcitx'
+	export DefaultIMModle=fcitx
+	if [[ $SHLVL = 1 ]]; then
+	   (fcitx-sutostart > /dev/null 2>&1)
+	   xset -r 49 > /dev/null 2&1
+	fi
+fi
+# Added by bash script: end
+EOF
+      cat <<EOF
+<!--?xml version="1.0"?-->
+<!DOCTYPE fontconfig sYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>/mnt/c/Windows/Fonts</dir>
+</fontconfig>
+<!-- Created by bash script from  https://astherier.com/blog/2021/07/windows11-wsl2-wslg-japanese/ -->
+EOF
+      
+  fi
+  
+  
   [[ $? ]] && echo "$(tput setaf 2)Update Packages complete.✓$(tput sgr0)"
 
   local list_formulae
