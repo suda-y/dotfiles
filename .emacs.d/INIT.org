@@ -133,8 +133,9 @@ Emacs >= 27 からの機能
   (if (boundp 'window-system)
       (setq default-frame-alist
 	    (append (list
-		     '(width  . 90)	; ウィンドウ幅
-		     '(height . 50)	; ウィンドウ高さ
+		     '(width  . 90)	        ; ウィンドウ幅
+		     '(height . 50)	        ; ウィンドウ高さ
+		     '(font   . "VL Gothic-11") ; VL ゴシック 11pt
 		     )
 		    default-frame-alist)
 	    ))
@@ -142,17 +143,17 @@ Emacs >= 27 からの機能
 #+end_src
 
 
-**** 日本語フォントをHan
-#+begin_src emacs-lisp :tangle early-init.el
-  (when (eq system-type 'windows-nt)
-    (setq default-frame-alist
-	  (append (list
-		   '(font . "HackGen Console NFJ-11"))
-		  default-frame-alist))
-    ;; (set-face-attribute 'default nil :family "HackGen Console NFJ" :height 110)
-    ;; (set-fontset-font nil '(#x80 . #x10ffff) (font-spec :family "HackGen Console NFJ"))
-    )
-#+end_src
+# **** 日本語フォントを
+# #+begin_src emacs-lisp :tangle early-init.el
+#   (when (eq system-type 'windows-nt)
+#     (setq default-frame-alist
+# 	  (append (list
+# 		   '(font . "HackGen Console NFJ-11"))
+# 		  default-frame-alist))
+#     ;; (set-face-attribute 'default nil :family "HackGen Console NFJ" :height 110)
+#     ;; (set-fontset-font nil '(#x80 . #x10ffff) (font-spec :family "HackGen Console NFJ"))
+#     )
+# #+end_src
 
 *** ワーニング抑制、他
 #+begin_src emacs-lisp :tangle early-init.el
@@ -597,21 +598,21 @@ startup は起動は静かに。自動保存ファイルに関しては保留。
     :global-minor-mode t)
   
 #+end_src
-*** flycheck
-[[https://www.flycheck.org/][flycheck]]はリアルタイムにソースにエラーやワーニングを表示するマイナーモードです。
-#+begin_src emacs-lisp :tangle init.el
-  (leaf flycheck
-    :doc "On-the-fly syntax checking"
-    :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
-    :tag "tools" "languages" "convenience" "emacs>=24.3"
-    :url "http://www.flycheck.org"
-    :added "2023-02-10"
-    :emacs>= 24.3
-    :ensure t
-    :bind (("M-n" . flycheck-next-error)
-	   ("M-p" . flycheck-previous-error))
-    :global-minor-mode global-flycheck-mode)
-#+end_src
+# *** flycheck
+# [[https://www.flycheck.org/][flycheck]]はリアルタイムにソースにエラーやワーニングを表示するマイナーモードです。
+# #+begin_src emacs-lisp :tangle init.el
+#   (leaf flycheck
+#     :doc "On-the-fly syntax checking"
+#     :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
+#     :tag "tools" "languages" "convenience" "emacs>=24.3"
+#     :url "http://www.flycheck.org"
+#     :added "2023-02-10"
+#     :emacs>= 24.3
+#     :ensure t
+#     :bind (("M-n" . flycheck-next-error)
+# 	   ("M-p" . flycheck-previous-error))
+#     :global-minor-mode global-flycheck-mode)
+# #+end_src
 
 *** company
 [[http://company-mode.github.io/][company]]は入力補完の為のパッケージです。
@@ -751,6 +752,20 @@ Pythonのテンプレートは[[https://github.com/AndreaCrott/yasnippet-snippet
 				(require 'lsp-pyright)
 				(lsp-deferred)))
     :after lsp-mode
+    )
+#+end_src
+
+**** Git関連
+#+begin_src  emacs-lisp :tangle init.el
+  (leaf magit
+    :doc "A Git porcelain inside Emacs."
+    :tag "vc" "tools" "git" "emacs>=25.1"
+    :url "https://github.com/magit/magit"
+    :added "2023-11-30"
+    :emacs>= 25.1
+    :ensure t
+    ;; :bind (("^Xg" . magit-status))
+    :after compat git-commit magit-section with-editor
     )
 #+end_src
 
