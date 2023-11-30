@@ -7,7 +7,7 @@ ELC	= $(EL:%.el=%.elc)
 all:	$(ELC) init.elc
 
 $(EL):	init.el
-init.el:	INIT.org
+init.el early-init.el:	INIT.org
 	$(EMACS) -Q -q --batch --eval \
 	  "(progn \
 	    (require 'ob-tangle) \
